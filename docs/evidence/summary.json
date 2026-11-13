@@ -1,0 +1,9 @@
+{
+ "bank": "/data/prometric/sdle-prep/data/questions.js",
+ "dry_run": true,
+ "records": 16738,
+ "usable_before": 10007,
+ "usable_after": 10007,
+ "demoted": {},
+ "demoted_total": 0
+}
