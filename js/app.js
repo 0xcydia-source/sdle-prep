@@ -4640,9 +4640,10 @@
     const isFlashCard = (it) => it._kind === 'flashcard';
     const fnCleanStem = (s) => (s || "").replace(/[✅🟢🟡✳🔵🔁●]/g, "").replace(/^[\s\u2022\u25CF\u2023\u25AA\u25A0#*>-]+/, "").replace(/[\s\u2022\u25CF\u2023\u25AA\u25A0]+$/, "").trim();
     const isGarbageStemFn = (s) => { const t = fnCleanStem(s); if (t.length < 3) return true; if (/^[-•*●#>\s]+$/.test(t)) return true; if (!/[a-zA-Z\u0621-\u064A0-9]/.test(t)) return true; return false; };
-    // A verdict demoted to needs_review no longer carries a key, so it cannot be
-    // quizzed as an MCQ — it stays in the ⚠ Review walker instead of the deck.
-    const isNeedsReviewItem = (it) => !!(it._verification_verdict === "needs_review" && it._verification_reason);
+    // Study deck = book-supported items only (student decision 2026-11-14).
+    // Any needs_review verdict (with or without a demotion note) stays in the
+    // ⚠ Review walker, where it is honestly labelled, and never in the deck.
+    const isNeedsReviewItem = (it) => it._verification_verdict === "needs_review";
     const isDeckBroken = (it) => !!(it._data_quality === "merged_options_review" || it._data_quality === "garbage" || it._is_option || isGarbageStemFn(it.stem) || isNeedsReviewItem(it));
     const deckEligible = fnAllItems.filter((it) => !isDeckBroken(it));
     const mcqAll = deckEligible.filter(isMcqItem).length;
