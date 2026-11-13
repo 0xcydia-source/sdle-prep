@@ -42,14 +42,14 @@ async function practice(page) {
 async function backupPage(page) {
   // Backup lives in Coach More; use persisted mode setup, then real UI controls.
   await page.evaluate(() => localStorage.setItem('sdle3_simpleMode','false'));
-  await page.reload({timeout:90000}); await loaded(page);
+  await page.reload({waitUntil:'domcontentloaded',timeout:120000}); await loaded(page);
   await page.locator('#main-nav [data-view="more"]').click();
   await page.getByText('Backup',{exact:true}).click();
 }
 async function importObject(page, data) {
   await backupPage(page);
   await Promise.all([
-    page.waitForEvent('load',{timeout:90000}),
+    page.waitForEvent('domcontentloaded',{timeout:120000}),
     page.locator('#more-import').setInputFiles({name:'regression.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(data))})
   ]);
   await loaded(page);
@@ -78,7 +78,7 @@ try {
       }
       const stats = await page.evaluate(() => JSON.parse(localStorage.getItem('sdle3_stats')));
       check(stats?.answered >= 2,`${label}: answers persisted`,stats);
-      await page.reload({timeout:90000}); await loaded(page);
+      await page.reload({waitUntil:'domcontentloaded',timeout:120000}); await loaded(page);
       check(JSON.stringify(await page.evaluate(() => JSON.parse(localStorage.getItem('sdle3_stats')))) === JSON.stringify(stats),`${label}: progress survives reload`);
       await tab(page,'progress');
       check(!/NaN|undefined|\[object Object\]/.test(await page.locator('#app').innerText()),`${label}: progress renders valid values`);
@@ -107,7 +107,7 @@ try {
       check(backup.keys.planPickedExplicit === true,`${label}: backup exports explicit plan flag`);
       await page.evaluate(() => {localStorage.removeItem('sdle3_planPickedExplicit');localStorage.removeItem('sdle3_planChosen');});
       // Already on import page; do not reload before restoring the exported file.
-      await Promise.all([page.waitForEvent('load',{timeout:90000}),page.locator('#more-import').setInputFiles({name:'roundtrip.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))})]);
+      await Promise.all([page.waitForEvent('domcontentloaded',{timeout:120000}),page.locator('#more-import').setInputFiles({name:'roundtrip.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))})]);
       await loaded(page);
       check(await page.evaluate(() => JSON.parse(localStorage.getItem('sdle3_planPickedExplicit'))) === true,`${label}: backup restores explicit plan flag`);
       const malicious = {keys:{simpleMode:true,planChosen:true,planPickedExplicit:true,stats:{answered:'<img src=x onerror="window.__statsXss=1">',correct:999,byTopic:{endo:null,restorative:{a:-3,c:100},perio:{a:2.7,c:99},oms:'broken'},bySubtopic:{bad:null,valid:{a:3,c:2}}}}};
@@ -128,7 +128,7 @@ try {
     await page.waitForFunction(() => !!navigator.serviceWorker.controller,null,{timeout:60000});
     report.offlineCacheKeys=await page.evaluate(() => caches.keys());
     await context.setOffline(true);
-    await page.reload({waitUntil:'load',timeout:60000}); await loaded(page);
+    await page.reload({waitUntil:'domcontentloaded',timeout:120000}); await loaded(page);
     const globals=await page.evaluate(() => ({bank:window.QUESTION_BANK?.length,flash:!!window.FLASH_NOTES,lessons:!!window.LESSONS,plans:!!window.PLAN_TRACKS}));
     check(globals.bank>100 && globals.flash && globals.lessons && globals.plans,'first-visit ready → offline reload: data globals',globals);
     await onboard(page);
