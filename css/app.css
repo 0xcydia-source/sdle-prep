@@ -4090,3 +4090,23 @@ a:hover { text-decoration-color: var(--accent); }
   border-color: var(--accent, #0b6b59);
 }
 .bookref-mini { font-size: 0.7rem; }
+
+/* 2026-11-11 audit fix (B-19): coach-mode phone layout overflowed (scrollWidth 494 vs 390)
+   because the plan <select> and long <code> paths could not shrink. Constrain them. */
+select, .plan-chooser select, #day-select {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+label:has(> select) { max-width: 100%; min-width: 0; }
+code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
+}
+.topbar, .chrome-row, .path-main, .simple-panel, .dept-card, .simple-note { min-width: 0; max-width: 100%; }
+@media (max-width: 640px) {
+  #app, .path-main { overflow-x: hidden; }
+  .plan-chooser label { display: block; width: 100%; }
+  .plan-chooser select { width: 100%; }
+}
